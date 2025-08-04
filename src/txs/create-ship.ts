@@ -1,10 +1,15 @@
 import dotenv from "dotenv";
-import { ArgValue } from "tx3-sdk/trp";
+import { ArgValue, SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
 import { protocol, CreateShipParams } from "../bindings/protocol";
+import signTx from "../utils/sign-tx";
 
 export async function run() {
 
   dotenv.config();
+
+   if (!process.env.PLAYER_SEED_PHRASE) {
+    throw new Error("PLAYER_SEED_PHRASE environment variable is not set");
+  }
 
   if (!process.env.PLAYER_ADDRESS) {
     throw new Error("PLAYER_ADDRESS environment variable is not set");
@@ -40,6 +45,28 @@ export async function run() {
 
   console.log("RESOLVE");
   console.log(response);
+
+  const playerSeedPhrase = process.env.PLAYER_SEED_PHRASE;
+  const witnesses = signTx(response.hash, playerSeedPhrase);
+
+  const submitParams: SubmitParams = {
+    tx: {
+      content: response.tx,
+      encoding: 'hex'
+    } as BytesEnvelope,
+    witnesses
+  };
+  
+  console.log("SUBMITTING TRANSACTION");
+  console.log(submitParams);
+  
+  try {
+    await protocol.submit(submitParams);
+    console.log("TRANSACTION SUBMITTED");
+  } catch (error) {
+    console.error("Failed to submit transaction:", error);
+    throw error;
+  }
 }
 
 run().catch((error) => {
