@@ -1,0 +1,28 @@
+[protocol]
+name = "asteria-dev"
+scope = "txpipe"
+version = "0.1.0"
+description = ""
+main = "main.tx3"
+
+[profiles.devnet]
+chain = "CardanoDevnet"
+
+[profiles.preview]
+chain = "CardanoPreview"
+
+[profiles.preprod]
+chain = "CardanoPreprod"
+
+[profiles.mainnet]
+chain = "CardanoMainnet"
+
+[profiles.preview.trp]
+url = "https://cardano-preview.trp-m1.demeter.run"
+
+[profiles.preview.trp.headers]
+dmtr-api-key = "trp1ffyf88ugcyg6j6n3yuh"
+
+[[bindings]]
+plugin = "typescript"
+output_dir = "./src/bindings"
