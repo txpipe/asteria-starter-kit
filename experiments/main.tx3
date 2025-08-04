@@ -1,0 +1,276 @@
+party Admin;
+party Player;
+
+env {
+    spacetime_policy_hash: Bytes,
+    spacetime_policy_ref: UtxoRef,
+
+    asteria_policy_hash: Bytes,
+    asteria_policy_ref: UtxoRef,
+
+    pellet_policy_hash: Bytes,
+    pellet_policy_ref: UtxoRef,
+
+    admin_token_policy: Bytes,
+
+    initial_fuel: Int,
+    ship_mint_lovelace_fee: Int,
+    fuel_per_step: Int,
+
+    ship_number: Int,
+}
+
+policy SpacetimePolicy {
+    hash: spacetime_policy_hash,
+    ref: spacetime_policy_ref,
+}
+
+policy AsteriaPolicy {
+    hash: asteria_policy_hash,
+    ref: asteria_policy_ref,
+}
+
+policy PelletPolicy {
+    hash: pellet_policy_hash,
+    ref: pellet_policy_ref,
+}
+
+asset Fuel = pellet_policy_hash."FUEL";
+asset AdminToken = admin_token_policy."Final Admin";
+
+asset ShipToken = spacetime_policy_hash.concat("SHIP", ship_number)
+asset PilotToken = spacetime_policy_hash.concat("PILOT", ship_number)
+
+type AssetRecord {
+    policy_id: Bytes,
+    asset_name: Bytes,
+}
+
+type MaxSpeedRecord {
+    distance: Int,
+    time: Int,
+}
+
+type ShipDatum {
+    pos_x: Int,
+    pos_y: Int,
+    ship_token_name: Bytes,
+    pilot_token_name: Bytes,
+    last_move_latest_time: Int,
+}
+
+type AsteriaDatum {
+    ship_counter: Int,
+    shipyard_policy: Bytes,
+}
+
+type PelletDatum {
+    pos_x: Int,
+    pos_y: Int,
+    shipyard_policy: Bytes,
+}
+
+type ShipActions {
+    MoveShip {
+        delta_x: Int,
+        delta_y: Int,
+    },
+    GatherFuel {
+        gather_amount: Int,
+    },
+}
+
+tx create_ship(
+    pos_x: Int, // Ship Position X
+    pos_y: Int, // Ship Position Y
+    ship_name: Bytes, // Name of the ship
+    pilot_name: Bytes, // Name of the pilot
+    tip_slot: Int, // TODO: remove when tip_slot() implemented
+) {
+    validity {
+        until_slot: tip_slot, // tip_slot() + 300
+    }
+
+    reference SpacetimeRef {
+        ref: spacetime_policy_ref,
+    }
+
+    reference AsteriaRef {
+        ref: asteria_policy_ref,
+    }
+
+    reference PelletRef {
+        ref: pellet_policy_ref,
+    }
+
+    input source {
+        from: Player,
+        min_amount: fees + Ada(ship_mint_lovelace_fee),
+    }
+
+    input asteria {
+        from: AsteriaPolicy,
+        min_amount: AdminToken(1),
+        datum_is: AsteriaDatum,
+    }
+    
+    mint {
+        amount: ShipToken(1) + PilotToken(1),
+        redeemer: (),
+    }
+
+    mint {
+        amount: Fuel(initial_fuel),
+        redeemer: (),
+    }
+
+    output {
+        to: Player,
+        amount: source - fees - Ada(ship_mint_lovelace_fee) + PilotToken(1),
+    }
+
+    output {
+        to: AsteriaPolicy,
+        amount: asteria + Ada(ship_mint_lovelace_fee),
+        datum: AsteriaDatum {
+            ship_counter: ship_number,
+            shipyard_policy: asteria.shipyard_policy,
+        },
+    }
+
+    output {
+        to: SpacetimePolicy,
+        amount: ShipToken(1) + Fuel(initial_fuel),
+        datum: ShipDatum {
+            pos_x: pos_x,
+            pos_y: pos_y,
+            ship_token_name: ship_name,
+            pilot_token_name: pilot_name,
+            last_move_latest_time: tip_slot,
+        },
+    }
+}
+
+tx move_ship(
+    delta_x: Int,
+    delta_y: Int,
+    ship_name: Bytes,
+    pilot_name: Bytes,
+    required_fuel: Int,
+    tip_slot: Int, // TODO: remove when tip_slot() implemented
+) {
+    validity {
+        until_slot: tip_slot, // tip_slot() + 300
+    }
+
+    reference SpacetimeRef {
+        ref: spacetime_policy_ref,
+    }
+
+    reference PelletRef {
+        ref: pellet_policy_ref,
+    }
+
+    input source {
+        from: Player,
+        min_amount: fees,
+    }
+
+    input ship {
+        from: SpacetimePolicy,
+        datum_is: ShipDatum,
+        min_amount: ShipToken(1),
+        redeemer: ShipActions::MoveShip { 
+            delta_x: delta_x,
+            delta_y: delta_y,
+        },
+    }
+
+    input pilot {
+        from: Player,
+        min_amount: PilotToken(1),
+    }
+
+    burn {
+        amount: Fuel(required_fuel),
+        redeemer: (),
+    }
+
+    output {
+        to: SpacetimePolicy,
+        amount: ship - Fuel(required_fuel),
+        datum: ShipDatum {
+            pos_x: ship.pos_x + delta_x,
+            pos_y: ship.pos_y + delta_y,
+            last_move_latest_time: tip_slot,
+            ...ship
+        },
+    }
+
+    output {
+        to: Player,
+        amount: source - fees + pilot,
+    }
+}
+
+tx gather_fuel (
+    gather_amount: Int,
+    ship_name: Bytes,
+    tip_slot: Int, // TODO: remove when tip_slot() implemented
+) { 
+    validity {
+        since_slot: tip_slot, // tip_slot() + 300
+    }
+
+    reference SpacetimeRef {
+        ref: spacetime_policy_ref,
+    }
+
+    reference PelletRef {
+        ref: pellet_policy_ref,
+    }
+
+    input source {
+        from: Player,
+        min_amount: fees,
+    }
+
+    input ship {
+        from: SpacetimePolicy,
+        datum_is: ShipDatum,
+        min_amount: ShipToken(1),
+        redeemer: ShipActions::GatherFuel { 
+            gather_amount: gather_amount,
+        },
+    }
+
+    input pellet {
+        from: PelletPolicy,
+        datum_is: PelletDatum,
+        min_amount: Fuel(gather_amount),
+        redeemer: ShipActions::GatherFuel { 
+            gather_amount: gather_amount,
+        },
+    }
+
+    output {
+        to: Player,
+        amount: source - fees,
+    }
+
+    output {
+        to: SpacetimePolicy,
+        amount: ship + Fuel(gather_amount),
+        datum: ShipDatum {...ship},
+    }
+
+    output {
+        to: PelletPolicy,
+        amount: pellet - Fuel(gather_amount),
+        datum: PelletDatum {
+            pos_x: pellet.pos_x,
+            pos_y: pellet.pos_y,
+            shipyard_policy: spacetime_policy_hash,
+        },
+    }
+}
