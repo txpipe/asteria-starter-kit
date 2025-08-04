@@ -1,4 +1,4 @@
-import { SubmitWitness, BytesEnvelope } from "tx3-sdk/trp";
+import { SubmitWitness } from "tx3-sdk/trp";
 
 import { HDKey } from "@scure/bip32";
 import { mnemonicToSeedSync } from "@scure/bip39";
@@ -9,10 +9,6 @@ import { ed25519 } from "@noble/curves/ed25519";
  * m/1852'/1815'/0'/0/0 (first payment key)
  */
 const CARDANO_PAYMENT_DERIVATION_PATH = "m/1852'/1815'/0'/0/0";
-
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
-}
 
 export default function signTx(txHash: string, mnemonic: string): SubmitWitness[] {
   const seed = mnemonicToSeedSync(mnemonic);
@@ -29,12 +25,12 @@ export default function signTx(txHash: string, mnemonic: string): SubmitWitness[
   return [{
     type: 'vkey',
     key: {
-      content: bytesToHex(publicKey),
+      content: Buffer.from(publicKey).toString('hex'),
       encoding: 'hex'
-    } as BytesEnvelope,
+    },
     signature: {
-      content: bytesToHex(signature),
+      content: Buffer.from(signature).toString('hex'),
       encoding: 'hex'
-    } as BytesEnvelope
+    }
   }];
 }
