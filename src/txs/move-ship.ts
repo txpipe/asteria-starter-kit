@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { ArgValue, SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
-import { protocol, CreateShipParams } from "../bindings/protocol";
+import { protocol, MoveShipParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
 export async function run() {
@@ -16,8 +16,9 @@ export async function run() {
   }
 
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const positionX = 20;
-  const positionY = 20;
+  const deltaX = 20;
+  const deltaY = 20;
+  const requiredFuel = 1;
   const shipName = "SHIP12"; // Replace with the next ship number
   const pilotName = "PILOT12"; // Replace with the next ship number
   const tipSlot = 87863190; // Replace with the latest block slot
@@ -25,23 +26,25 @@ export async function run() {
   console.log("-- PARAMS");
   console.log({
     playerAddress,
-    positionX,
-    positionY,
+    deltaX,
+    deltaY,
+    requiredFuel,
     shipName,
     pilotName,
     tipSlot,
   });
 
-  const args: CreateShipParams = {
+  const args: MoveShipParams = {
     player: ArgValue.from(playerAddress),
-    pPosX: ArgValue.from(positionX),
-    pPosY: ArgValue.from(positionY),
+    pDeltaX: ArgValue.from(deltaX),
+    pDeltaY: ArgValue.from(deltaY),
+    requiredFuel: ArgValue.from(requiredFuel),
     pilotName: ArgValue.from(new TextEncoder().encode(pilotName)),
     shipName: ArgValue.from(new TextEncoder().encode(shipName)),
     tipSlot: ArgValue.from(tipSlot + 300), // 5 minutes from last block
   };
 
-  const response = await protocol.createShipTx(args);
+  const response = await protocol.moveShipTx(args);
 
   console.log("-- RESOLVE");
   console.log(response);

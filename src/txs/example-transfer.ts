@@ -7,20 +7,20 @@ export async function run() {
 
   dotenv.config();
 
-  if (!process.env.PLAYER_SEED_PHRASE) {
-    throw new Error("PLAYER_SEED_PHRASE environment variable is not set");
+  if (!process.env.SENDER_PRIVATE_KEY) {
+    throw new Error("SENDER_PRIVATE_KEY environment variable is not set");
   }
 
-  if (!process.env.PLAYER_ADDRESS) {
-    throw new Error("PLAYER_ADDRESS environment variable is not set");
+  if (!process.env.SENDER_ADDRESS) {
+    throw new Error("SENDER_ADDRESS environment variable is not set");
   }
 
-  if (!process.env.EXAMPLE_ADDRESS) {
-    throw new Error("EXAMPLE_ADDRESS environment variable is not set");
+  if (!process.env.RECEIVER_ADDRESS) {
+    throw new Error("RECEIVER_ADDRESS environment variable is not set");
   }
 
-  const sender = process.env.PLAYER_ADDRESS;
-  const receiver = process.env.EXAMPLE_ADDRESS;
+  const sender = process.env.SENDER_ADDRESS;
+  const receiver = process.env.RECEIVER_ADDRESS;
   const quantity = 1000000;
 
   console.log("-- PARAMS");
@@ -37,8 +37,10 @@ export async function run() {
   console.log("-- RESOLVE");
   console.log(response);
 
-  const senderSeedPhrase = process.env.PLAYER_SEED_PHRASE;
-  const witnesses = signTx(response.hash, senderSeedPhrase);
+  const witnesses = signTx(response.hash, process.env.SENDER_PRIVATE_KEY);
+
+  console.log("-- SIGN TX");
+  console.log(witnesses);
 
   const submitParams: SubmitParams = {
     tx: {
