@@ -64,6 +64,7 @@ tx create_ship(
     ship_name: Bytes, // Name of the ship
     pilot_name: Bytes, // Name of the pilot
     tip_slot: Int, // TODO: remove when tip_slot() implemented
+    last_move_timestamp: Int,
 ) {
     locals {
         initial_fuel: 480, // Should be taken from spaceTime datum
@@ -133,7 +134,7 @@ tx create_ship(
             pos_y: p_pos_y,
             ship_token_name: ship_name,
             pilot_token_name: pilot_name,
-            last_move_latest_time: tip_slot,
+            last_move_latest_time: last_move_timestamp,
         },
     }
 }
@@ -145,6 +146,7 @@ tx move_ship(
     pilot_name: Bytes,
     required_fuel: Int,
     tip_slot: Int, // TODO: remove when tip_slot() implemented
+    last_move_timestamp: Int,
 ) {
     locals {
         spacetime_policy_hash: 0x0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43,
@@ -195,7 +197,7 @@ tx move_ship(
         datum: ShipDatum {
             pos_x: ship.pos_x + p_delta_x,
             pos_y: ship.pos_y + p_delta_y,
-            last_move_latest_time: tip_slot,
+            last_move_latest_time: last_move_timestamp,
             ...ship
         },
     }
