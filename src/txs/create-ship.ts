@@ -21,6 +21,7 @@ export async function run() {
   const shipName = "SHIP12"; // Replace with the next ship number
   const pilotName = "PILOT12"; // Replace with the next ship number
   const tipSlot = 87863190; // Replace with the latest block slot
+  const lastMoveTimestamp = Date.now();
 
   console.log("-- PARAMS");
   console.log({
@@ -33,12 +34,13 @@ export async function run() {
   });
 
   const args: CreateShipParams = {
-    player: ArgValue.from(playerAddress),
-    pPosX: ArgValue.from(positionX),
-    pPosY: ArgValue.from(positionY),
-    pilotName: ArgValue.from(new TextEncoder().encode(pilotName)),
-    shipName: ArgValue.from(new TextEncoder().encode(shipName)),
-    tipSlot: ArgValue.from(tipSlot + 300), // 5 minutes from last block
+    player: playerAddress,
+    pPosX: positionX,
+    pPosY: positionY,
+    pilotName: new TextEncoder().encode(pilotName),
+    shipName: new TextEncoder().encode(shipName),
+    tipSlot: tipSlot + 300, // 5 minutes from last block
+    lastMoveTimestamp,
   };
 
   const response = await protocol.createShipTx(args);

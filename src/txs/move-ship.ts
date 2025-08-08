@@ -22,6 +22,7 @@ export async function run() {
   const shipName = "SHIP12"; // Replace with the next ship number
   const pilotName = "PILOT12"; // Replace with the next ship number
   const tipSlot = 87863190; // Replace with the latest block slot
+  const lastMoveTimestamp = Date.now();
 
   console.log("-- PARAMS");
   console.log({
@@ -32,16 +33,18 @@ export async function run() {
     shipName,
     pilotName,
     tipSlot,
+    lastMoveTimestamp,
   });
 
   const args: MoveShipParams = {
-    player: ArgValue.from(playerAddress),
-    pDeltaX: ArgValue.from(deltaX),
-    pDeltaY: ArgValue.from(deltaY),
-    requiredFuel: ArgValue.from(requiredFuel),
-    pilotName: ArgValue.from(new TextEncoder().encode(pilotName)),
-    shipName: ArgValue.from(new TextEncoder().encode(shipName)),
-    tipSlot: ArgValue.from(tipSlot + 300), // 5 minutes from last block
+    player: playerAddress,
+    pDeltaX: deltaX,
+    pDeltaY: deltaY,
+    requiredFuel: requiredFuel,
+    pilotName: new TextEncoder().encode(pilotName),
+    shipName: new TextEncoder().encode(shipName),
+    tipSlot: tipSlot + 300, // 5 minutes from last block
+    lastMoveTimestamp,
   };
 
   const response = await protocol.moveShipTx(args);
