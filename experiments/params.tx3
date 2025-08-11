@@ -1,23 +1,22 @@
 party Admin;
 party Player;
 
-policy SpacetimePolicy {
-    hash: 0xb6c5e14f31af0c92515ce156625afc4749e30ceef178cfae1f929fff,
-    ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#1,
-}
+env {
+    spacetime_policy_hash: Bytes,
+    spacetime_policy_ref: UtxoRef,
 
-policy AsteriaPolicy {
-    hash: 0xb16a0775a5e045b482ab2a98e241c9347f8ffe265bb6acd10452a6cc,
-    ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#0,
-}
+    asteria_policy_hash: Bytes,
+    asteria_policy_ref: UtxoRef,
 
-policy PelletPolicy {
-    hash: 0x98b1c97b219c102dd0e9ba014481272d6ec069ec3ff47c63e291f1b7,
-    ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#2,
-}
+    pellet_policy_hash: Bytes,
+    pellet_policy_ref: UtxoRef,
 
-asset Fuel = 0x98b1c97b219c102dd0e9ba014481272d6ec069ec3ff47c63e291f1b7."FUEL";
-asset AdminToken = 0x516238dd0a79bac4bebe041c44bad8bf880d74720733d2fc0d255d28."asteriaAdmin";
+    admin_token_policy_hash: Bytes,
+    admin_token_name: Bytes,
+
+    initial_fuel: Int,
+    ship_mint_lovelace_fee: Int,
+}
 
 type AssetRecord {
     policy_id: Bytes,
@@ -66,15 +65,6 @@ tx create_ship(
     tip_slot: Int, // TODO: remove when tip_slot() implemented
     last_move_timestamp: Int,
 ) {
-    locals {
-        initial_fuel: 5, // Should be taken from spaceTime datum
-        ship_mint_lovelace_fee: 1000000, // Should be taken from asteria script datum
-        spacetime_policy_hash: 0xb6c5e14f31af0c92515ce156625afc4749e30ceef178cfae1f929fff,
-        spacetime_policy_ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#1,
-        asteria_policy_ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#2,
-        pellet_policy_ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#2,
-    }
-
     validity {
         until_slot: tip_slot, // tip_slot() + 300
     }
@@ -93,12 +83,12 @@ tx create_ship(
 
     input source {
         from: Player,
-        min_amount: fees + Ada(ship_mint_lovelace_fee) + min_utxo(ship),
+        min_amount: fees + Ada(ship_mint_lovelace_fee)+ min_utxo(ship),
     }
 
     input asteria {
-        from: AsteriaPolicy,
-        min_amount: AdminToken(1),
+        from: asteria_policy_hash,
+        min_amount: AnyAsset(admin_token_policy_hash, admin_token_name, 1),
         datum_is: AsteriaDatum,
         redeemer: (),
     }
@@ -109,7 +99,7 @@ tx create_ship(
     }
 
     mint {
-        amount: Fuel(initial_fuel),
+        amount: AnyAsset(pellet_policy_hash, "FUEL", initial_fuel),
         redeemer: (),
     }
 
@@ -119,7 +109,7 @@ tx create_ship(
     }
 
     output {
-        to: AsteriaPolicy,
+        to: asteria_policy_hash,
         amount: asteria + Ada(ship_mint_lovelace_fee),
         datum: AsteriaDatum {
             ship_counter: asteria.ship_counter + 1,
@@ -128,8 +118,8 @@ tx create_ship(
     }
 
     output ship {
-        to: SpacetimePolicy,
-        amount: AnyAsset(spacetime_policy_hash, ship_name, 1) + Fuel(initial_fuel) + min_utxo(ship),
+        to: spacetime_policy_hash,
+        amount: AnyAsset(spacetime_policy_hash, ship_name, 1) + AnyAsset(pellet_policy_hash, "FUEL", initial_fuel) + min_utxo(ship),
         datum: ShipDatum {
             pos_x: p_pos_x,
             pos_y: p_pos_y,
@@ -154,12 +144,6 @@ tx move_ship(
     tip_slot: Int, // TODO: remove when tip_slot() implemented
     last_move_timestamp: Int,
 ) {
-    locals {
-        spacetime_policy_hash: 0xb6c5e14f31af0c92515ce156625afc4749e30ceef178cfae1f929fff,
-        spacetime_policy_ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#1,
-        pellet_policy_ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#2,
-    }
-
     validity {
         until_slot: tip_slot, // tip_slot() + 300
     }
@@ -178,7 +162,7 @@ tx move_ship(
     }
 
     input ship {
-        from: SpacetimePolicy,
+        from: spacetime_policy_hash,
         datum_is: ShipDatum,
         min_amount: AnyAsset(spacetime_policy_hash, ship_name, 1),
         redeemer: ShipActions::MoveShip { 
@@ -193,13 +177,13 @@ tx move_ship(
     }
 
     burn {
-        amount: Fuel(required_fuel),
+        amount: AnyAsset(pellet_policy_hash, "FUEL", required_fuel),
         redeemer: (),
     }
 
     output {
-        to: SpacetimePolicy,
-        amount: ship - Fuel(required_fuel),
+        to: spacetime_policy_hash,
+        amount: ship - AnyAsset(pellet_policy_hash, "FUEL", required_fuel),
         datum: ShipDatum {
             pos_x: ship.pos_x + p_delta_x,
             pos_y: ship.pos_y + p_delta_y,
@@ -218,13 +202,7 @@ tx gather_fuel (
     p_gather_amount: Int,
     ship_name: Bytes,
     tip_slot: Int, // TODO: remove when tip_slot() implemented
-) {
-    locals {
-        spacetime_policy_hash: 0xb6c5e14f31af0c92515ce156625afc4749e30ceef178cfae1f929fff,
-        spacetime_policy_ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#1,
-        pellet_policy_ref: 0x81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#2,
-    }
-    
+) {    
     validity {
         since_slot: tip_slot, // tip_slot() + 300
     }
@@ -243,7 +221,7 @@ tx gather_fuel (
     }
 
     input ship {
-        from: SpacetimePolicy,
+        from: spacetime_policy_hash,
         datum_is: ShipDatum,
         min_amount: AnyAsset(spacetime_policy_hash, ship_name, 1),
         redeemer: ShipActions::GatherFuel { 
@@ -252,9 +230,9 @@ tx gather_fuel (
     }
 
     input pellet {
-        from: PelletPolicy,
+        from: pellet_policy_hash,
         datum_is: PelletDatum,
-        min_amount: Fuel(p_gather_amount),
+        min_amount: AnyAsset(pellet_policy_hash, "FUEL", p_gather_amount),
         redeemer: ShipActions::GatherFuel { 
             gather_amount: p_gather_amount,
         },
@@ -266,14 +244,14 @@ tx gather_fuel (
     }
 
     output {
-        to: SpacetimePolicy,
-        amount: ship + Fuel(p_gather_amount),
+        to: spacetime_policy_hash,
+        amount: ship + AnyAsset(pellet_policy_hash, "FUEL", p_gather_amount),
         datum: ShipDatum {...ship},
     }
 
     output {
-        to: PelletPolicy,
-        amount: pellet - Fuel(p_gather_amount),
+        to: pellet_policy_hash,
+        amount: pellet - AnyAsset(pellet_policy_hash, "FUEL", p_gather_amount),
         datum: PelletDatum {
             pos_x: pellet.pos_x,
             pos_y: pellet.pos_y,
