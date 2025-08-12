@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { ArgValue, SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
+import { SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
 import { protocol, CreateShipParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
@@ -16,11 +16,11 @@ export async function run() {
   }
 
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const positionX = 20;
-  const positionY = 20;
-  const shipName = "SHIP12"; // Replace with the next ship number
-  const pilotName = "PILOT12"; // Replace with the next ship number
-  const tipSlot = 87863190; // Replace with the latest block slot
+  const positionX = 25; // Replace with your desired start X position
+  const positionY = 25; // Replace with your desired start Y position
+  const shipName = "SHIP0"; // Replace 0 with the next ship number
+  const pilotName = "PILOT0"; // Replace 0 with the next ship number
+  const tipSlot = 0; // Replace with the latest block slot
   const lastMoveTimestamp = Date.now();
 
   console.log("-- PARAMS");

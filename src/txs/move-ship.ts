@@ -16,12 +16,12 @@ export async function run() {
   }
 
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const deltaX = 20;
-  const deltaY = 20;
-  const requiredFuel = 1;
-  const shipName = "SHIP12"; // Replace with the next ship number
-  const pilotName = "PILOT12"; // Replace with the next ship number
-  const tipSlot = 87863190; // Replace with the latest block slot
+  const deltaX = 5; // Replace with your desired X movement units
+  const deltaY = 5; // Replace with your desired Y movement units
+  const requiredFuel = 1; // Replace with the required fuel for the movement
+  const shipName = "SHIP0"; // Replace with your ship name
+  const pilotName = "PILOT0"; // Replace with your pilot name
+  const tipSlot = 0; // Replace with the latest block slot
   const lastMoveTimestamp = Date.now();
 
   console.log("-- PARAMS");

@@ -5,8 +5,7 @@
   "scripts": {
     "build": "tsc",
     "create-ship": "ts-node src/txs/create-ship.ts",
-    "move-ship": "ts-node src/txs/move-ship.ts",
-    "example-transfer": "ts-node src/txs/example-transfer.ts"
+    "move-ship": "ts-node src/txs/move-ship.ts"
   },
   "dependencies": {
     "@noble/curves": "^1.9.6",
