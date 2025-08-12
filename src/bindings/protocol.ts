@@ -63,18 +63,6 @@ export const GATHER_FUEL_IR = {
     version: "v1alpha8",
 };
 
-export type TransferParams = {
-    quantity: ArgValue | bigint | number; // Int
-    receiver: ArgValue | string; // Address
-    sender: ArgValue | string; // Address
-}
-
-export const TRANSFER_IR = {
-    bytecode: "0d03000106736f757263650d0206736f757263650d010673656e646572050c0100000d01087175616e746974790200000000020d0108726563656976657205000c0100000d01087175616e74697479020d010673656e64657205000e020e0210010d0206736f757263650d010673656e646572050c0100000d01087175616e74697479020000000c0100000d01087175616e74697479020d0300000000000000",
-    encoding: "hex",
-    version: "v1alpha8",
-};
-
 export class Client {
     readonly #client: TRPClient;
 
@@ -99,13 +87,6 @@ export class Client {
     async gatherFuelTx(args: GatherFuelParams): Promise<ResolveResponse> {
         return await this.#client.resolve({
             tir: GATHER_FUEL_IR,
-            args,
-        });
-    }
-
-    async transferTx(args: TransferParams): Promise<ResolveResponse> {
-        return await this.#client.resolve({
-            tir: TRANSFER_IR,
             args,
         });
     }
