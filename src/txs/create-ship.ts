@@ -1,7 +1,20 @@
 import dotenv from "dotenv";
-import { ArgValue, SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
+import { SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
 import { protocol, CreateShipParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
+
+const CHALLENGE_PREVIEW = {
+  spacetimePolicyHash: new TextEncoder().encode('b6c5e14f31af0c92515ce156625afc4749e30ceef178cfae1f929fff'),
+  spacetimePolicyRef: '81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#1',
+  pelletPolicyHash: new TextEncoder().encode('98b1c97b219c102dd0e9ba014481272d6ec069ec3ff47c63e291f1b7'),
+  pelletPolicyRef: '81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#2',
+  asteriaPolicyHash: new TextEncoder().encode('b16a0775a5e045b482ab2a98e241c9347f8ffe265bb6acd10452a6cc'),
+  asteriaPolicyRef: '81667fe89e20c352a8428f68efd0c9db1fef6cd15aa36ad4423797bb2c401431#0',
+  adminTokenName: new TextEncoder().encode('asteriaAdmin'),
+  adminTokenPolicyHash: new TextEncoder().encode('516238dd0a79bac4bebe041c44bad8bf880d74720733d2fc0d255d28'),
+  initialFuel: 5,
+  shipMintLovelaceFee: 1_000_000,
+}
 
 export async function run() {
 
@@ -15,12 +28,14 @@ export async function run() {
     throw new Error("PLAYER_ADDRESS environment variable is not set");
   }
 
+  const challenge = CHALLENGE_PREVIEW; // Select the challenge you want to play
+
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const positionX = 20;
-  const positionY = 20;
-  const shipName = "SHIP12"; // Replace with the next ship number
-  const pilotName = "PILOT12"; // Replace with the next ship number
-  const tipSlot = 87863190; // Replace with the latest block slot
+  const positionX = 20; // Replace with your desired start X position
+  const positionY = 20; // Replace with your desired start Y position
+  const shipName = "SHIP0"; // Replace with the next ship number
+  const pilotName = "PILOT0"; // Replace with the next ship number
+  const tipSlot = 88358609; // Replace with the latest block slot
   const lastMoveTimestamp = Date.now();
 
   console.log("-- PARAMS");
