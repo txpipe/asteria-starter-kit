@@ -1,10 +1,9 @@
 import dotenv from "dotenv";
 import { SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
-import { protocol, CreateShipParams } from "../bindings/protocol";
+import { Client, CreateShipParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
 export async function run() {
-
   dotenv.config();
 
   if (!process.env.PLAYER_PRIVATE_KEY) {
@@ -14,6 +13,18 @@ export async function run() {
   if (!process.env.PLAYER_ADDRESS) {
     throw new Error("PLAYER_ADDRESS environment variable is not set");
   }
+
+  // These are the default values for the Tx3 backend server running on Demeter. It has a free tier that you
+  // can use. Feel free to use your own if you need more throughput. More info on https://docs.tx3.io/tx3 .
+  const DEFAULT_TRP_ENDPOINT = "https://cardano-mainnet.trp-m1.demeter.run";
+  const DEFAULT_TRP_API_KEY = "trp1lrnhzcax5064cgxsaup";
+
+  const client = new Client({
+    endpoint: process.env.TRP_ENDPOINT || DEFAULT_TRP_ENDPOINT,
+    headers: {
+      "dmtr-api-key": process.env.TRP_API_KEY || DEFAULT_TRP_API_KEY,
+    },
+  });
 
   const playerAddress = process.env.PLAYER_ADDRESS;
   const positionX = 25; // Replace with your desired start X position
@@ -43,7 +54,7 @@ export async function run() {
     lastMoveTimestamp,
   };
 
-  const response = await protocol.createShipTx(args);
+  const response = await client.createShipTx(args);
 
   console.log("-- RESOLVE");
   console.log(response);
@@ -56,16 +67,16 @@ export async function run() {
   const submitParams: SubmitParams = {
     tx: {
       content: response.tx,
-      encoding: 'hex'
+      encoding: "hex",
     } as BytesEnvelope,
-    witnesses
+    witnesses,
   };
-  
+
   console.log("-- SUBMIT");
   console.log(submitParams);
-  
+
   try {
-    await protocol.submit(submitParams);
+    await client.submit(submitParams);
     console.log("-- DONE");
   } catch (error) {
     console.error("-- SUBMIT ERROR");
