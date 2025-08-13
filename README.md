@@ -12,6 +12,22 @@ First you need to install the Node dependencies:
 npm install
 ```
 
+### Create a wallet for the pilot 
+
+The following command uses cardano-cli to create a new private / public key for the pilot. This is the wallet that will control the actions of the ship.
+
+```
+cardano-cli address key-gen --verification-key-file pilot.vk --signing-key-file pilot.sk
+```
+
+Run the following command to get the address of your new wallet:
+
+```
+cardano-cli address build --payment-verification-key-file pilot.vk --mainnet
+```
+
+Make sure to send some ADA to the address to use as "gas" for executing the required transactions.
+
 ### Provide the required env vars
 
 You need to create a `.env` file with your wallet info:
