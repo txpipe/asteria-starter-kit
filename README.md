@@ -44,12 +44,31 @@ This is the first step in order to play the game.
 You need to replace the params with the required values:
 
 `src/txs/create-ship.ts`
+
 ```ts
 const positionX = 25; // Replace with your desired start X position
 const positionY = 25; // Replace with your desired start Y position
 const shipName = "SHIP0"; // Replace 0 with the next ship number
 const pilotName = "PILOT0"; // Replace 0 with the next ship number
 const tipSlot = 0; // Replace with the latest block slot
+```
+
+Rules to take into account:
+
+- the ship number has to be exactly +1 of the last ship minted
+- the tip slot must be recent because it's used during validation of the tx
+- the start position has to be at a certain distance ([manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry)) of coordinates (0,0). For the mainnet challenge the minimum distance is `50`. 
+
+You can query the last ship number using the following curl:
+
+```
+curl
+```
+
+You can query the tip of the chain using the following curl:
+
+```
+curl
 ```
 
 Run this in order to create and submit the transaction:
@@ -73,6 +92,13 @@ const shipName = "SHIP0"; // Replace with your ship name
 const pilotName = "PILOT0"; // Replace with your pilot name
 const tipSlot = 0; // Replace with the latest block slot
 ```
+
+Rules to take into account:
+
+- the ship number has to be the one controlled by the pilot token in your wallet.
+- the total distance you travel is constrained by the number of slots between your tx validity range (ttl end - ttl start).
+- the amount of fuel you pass is proportional to the total distance you travel (deltaX + deltaY).
+
 
 Run this in order to create and submit the transaction:
 
