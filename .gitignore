@@ -39,3 +39,7 @@ public/visualizer/*
 
 .env
 dist/
+
+# keys
+pilot.sk
+pilot.vk
