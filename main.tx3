@@ -189,6 +189,11 @@ tx move_ship(
         ref: pellet_policy_ref,
     }
 
+    collateral {
+        from: Player,
+        min_amount: fees,
+    }
+
     input ship {
         from: SpacetimePolicy,
         datum_is: ShipDatum,
