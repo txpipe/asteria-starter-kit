@@ -59,16 +59,20 @@ Rules to take into account:
 - the tip slot must be recent because it's used during validation of the tx
 - the start position has to be at a certain distance ([manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry)) of coordinates (0,0). For the mainnet challenge the minimum distance is `50`. 
 
-You can query the last ship number using the following curl:
+You can query the next available ship and pilot token names using the following curl:
 
 ```
-curl
+curl --location 'https://8000-ethereal-audience-bb83g6.us1.demeter.run/graphql' \
+--header 'Content-Type: application/json' \
+--data '{"query":"query { lastShipToken(spacetimePolicyId: \"0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43\", spacetimeAddress: \"addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx\") { shipName pilotName } }","variables":{}}'
 ```
 
 You can query the tip of the chain using the following curl:
 
 ```
-curl
+curl --location 'https://8000-ethereal-audience-bb83g6.us1.demeter.run/graphql' \
+--header 'Content-Type: application/json' \
+--data '{"query":"query { lastSlot { slot } }","variables":{}}'
 ```
 
 Run this in order to create and submit the transaction:
