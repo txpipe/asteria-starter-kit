@@ -8,7 +8,9 @@
     "move-ship": "ts-node src/txs/move-ship.ts"
   },
   "dependencies": {
+    "@blaze-cardano/core": "^0.7.0",
     "@noble/curves": "^1.9.6",
+    "@utxorpc/blaze-provider": "^0.3.6",
     "dotenv": "^17.2.1",
     "tx3-sdk": "^0.6.0"
   },
