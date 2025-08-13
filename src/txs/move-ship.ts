@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { ArgValue, SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
-import { protocol, MoveShipParams } from "../bindings/protocol";
+import { Client, MoveShipParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
 export async function run() {
@@ -15,13 +15,23 @@ export async function run() {
     throw new Error("PLAYER_ADDRESS environment variable is not set");
   }
 
+  const DEFAULT_TRP_ENDPOINT = "https://cardano-mainnet.trp-m1.demeter.run";
+  const DEFAULT_TRP_API_KEY = "trp1lrnhzcax5064cgxsaup";
+
+  const client = new Client({
+    endpoint: process.env.TRP_ENDPOINT || DEFAULT_TRP_ENDPOINT,
+    headers: {
+      "dmtr-api-key": process.env.TRP_API_KEY || DEFAULT_TRP_API_KEY,
+    },
+  });
+
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const deltaX = 5; // Replace with your desired X movement units
-  const deltaY = 5; // Replace with your desired Y movement units
-  const requiredFuel = 1; // Replace with the required fuel for the movement
-  const shipName = "SHIP0"; // Replace with your ship name
-  const pilotName = "PILOT0"; // Replace with your pilot name
-  const tipSlot = 0; // Replace with the latest block slot
+  const deltaX = 1; // Replace with your desired X movement units
+  const deltaY = 1; // Replace with your desired Y movement units
+  const requiredFuel = 2; // Replace with the required fuel for the movement
+  const shipName = "SHIP22"; // Replace with your ship name
+  const pilotName = "PILOT22"; // Replace with your pilot name
+  const tipSlot = 163530194; // Replace with the latest block slot
   const lastMoveTimestamp = Date.now();
 
   console.log("-- PARAMS");
@@ -47,7 +57,7 @@ export async function run() {
     lastMoveTimestamp,
   };
 
-  const response = await protocol.moveShipTx(args);
+  const response = await client.moveShipTx(args);
 
   console.log("-- RESOLVE");
   console.log(response);
@@ -69,7 +79,7 @@ export async function run() {
   console.log(submitParams);
   
   try {
-    await protocol.submit(submitParams);
+    await client.submit(submitParams);
     console.log("-- DONE");
   } catch (error) {
     console.error("-- SUBMIT ERROR");
