@@ -64,7 +64,7 @@ You can query the next available ship and pilot token names using the following 
 ```
 curl --location 'https://8000-ethereal-audience-bb83g6.us1.demeter.run/graphql' \
 --header 'Content-Type: application/json' \
---data '{"query":"query { lastShipToken(spacetimePolicyId: \"0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43\", spacetimeAddress: \"addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx\") { shipName pilotName } }","variables":{}}'
+--data '{"query":"query { nextShipTokenName(spacetimePolicyId: \"0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43\", spacetimeAddress: \"addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx\") { shipName pilotName } }","variables":{}}'
 ```
 
 You can query the tip of the chain using the following curl:
