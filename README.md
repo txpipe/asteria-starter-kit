@@ -1,5 +1,10 @@
 # Asteria Starter Kit
 
+## Reference Docs
+
+- [Asteria on-chain design document](https://github.com/txpipe/asteria/blob/main/onchain/docs/design/design.md)
+- [Asteria on-chain validators](https://github.com/txpipe/asteria/tree/main/onchain/src)
+
 ## Install the toolchain
 
 Visit the [Tx3 installation](https://docs.txpipe.io/tx3/installation) guide.
