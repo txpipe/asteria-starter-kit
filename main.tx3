@@ -210,8 +210,7 @@ tx move_ship(
     }
 
     mint {
-        amount: -Fuel(required_fuel),
-        redeemer: (),
+        amount: Fuel(required_fuel) - Fuel(required_fuel) - Fuel(required_fuel),
         redeemer: FuelRedeemer::BurnFuel {},
     }
 
