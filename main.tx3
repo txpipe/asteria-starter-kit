@@ -58,6 +58,22 @@ type ShipActions {
     },
 }
 
+type AsteriaRedeemer {
+  AddNewShip,
+  Mine,
+  ConsumeAsteria,
+}
+
+
+type ShipyardRedeemer {
+  MintShip,
+  BurnShip,
+}
+type FuelRedeemer {
+  MintFuel,
+  BurnFuel,
+}
+
 tx create_ship(
     p_pos_x: Int, // Ship Position X
     p_pos_y: Int, // Ship Position Y
