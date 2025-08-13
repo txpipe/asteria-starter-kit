@@ -1,47 +1,41 @@
 # Asteria Starter Kit
 
-## Mainnet Challenge
-
-The mainnet challenge is ready for play! There's 10k ADA and tokens in rewards 🎉
-
-### Parameters
-
-```json
-{
-  "ship_mint_lovelace_fee": 1000000,
-  "max_asteria_mining": 50,
-  "max_speed": {
-    "distance": 1,
-    "time": 12096000
-  },
-  "max_ship_fuel": 5,
-  "fuel_per_step": 1,
-  "initial_fuel": 5,
-  "min_asteria_distance": 50
-}
-```
-
-### Validators
-
-| Validator | Address | Policy ID |
-|-----------|---------|-----------|
-| Asteria   | `addr1w824uvev63kj40lzfhaq2kxzmmwsz9xsqsjr2t4cq74vzdcdw8c77` | `d55e332cd46d2abfe24dfa0558c2dedd0114d00424352eb807aac137` |
-| Pellet    | `addr1wya6hnluvypwcfww6s8p5f8m5gphryjugmcznxetj3trvrsc307jj` | `3babcffc6102ec25ced40e1a24fba20371925c46f0299b2b9456360e` |
-| Spacetime | `addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx` | `0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43` |
-| Admin     |                                                              | `db0d968cda2cc636b28c0f377e66691a065b8004e57be5129aeef822` |
-
-## Build your own bot
-
-### Reference Docs
+## Reference Docs
 
 - [Asteria on-chain design document](https://github.com/txpipe/asteria/blob/main/onchain/docs/design/design.md)
 - [Asteria on-chain validators](https://github.com/txpipe/asteria/tree/main/onchain/src)
 
-### Install the toolchain
+## Using Tx3
 
-Visit the [Tx3 installation](https://docs.txpipe.io/tx3/installation) guide.
+This starter kit relies on the [Tx3 toolchain](https://docs.txpipe.io/tx3), a development toolkit for UTxO protocols. Make sure to visite the [Tx3 installation](https://docs.txpipe.io/tx3/installation) guide to setup your system before continuing.
 
-### Starting the project
+The `main.tx3` file contains the interface definition for the Asteria protocol. This file uses the Tx3 DSL to describe the different on-chain interactions that your bot may need.
+
+We encourage you to explore the [Tx3 language](https://docs.txpipe.io/tx3), but if you just want to keep going with Asteria, the important thing to notice is that the `main.tx` file contains definition for several function-like artifacts that describe each of the transaction of the Asteria protocol.
+
+```js
+tx create_ship(
+    // Ship Position X
+    p_pos_x: Int, 
+    // Ship Position Y
+    p_pos_y: Int,
+    // Name of the ship
+    ship_name: Bytes,
+    // Name of the pilot
+    pilot_name: Bytes,
+    // The tip of the chain when submitting the Tx
+    // TODO: this won't be necessary on future versions of Tx3
+    tip_slot: Int, 
+    // the POSIX timestamp at the time of submitting the Tx
+    last_move_timestamp: Int,
+) {
+    ...
+}
+```
+
+The body of each of these _functions_ contains the transaction building logic that you need for controlling your Asteria ship.
+
+## Building your bot
 
 First you need to install the Node dependencies:
 
@@ -151,3 +145,33 @@ Run this in order to create and submit the transaction:
 ```bash
 npm run move-ship
 ```
+
+## Mainnet Challenge
+
+The mainnet challenge is ready for play! There's 10k ADA and tokens in rewards 🎉
+
+### Parameters
+
+```json
+{
+  "ship_mint_lovelace_fee": 1000000,
+  "max_asteria_mining": 50,
+  "max_speed": {
+    "distance": 1,
+    "time": 12096000
+  },
+  "max_ship_fuel": 5,
+  "fuel_per_step": 1,
+  "initial_fuel": 5,
+  "min_asteria_distance": 50
+}
+```
+
+### Validators
+
+| Validator | Address                                                      | Policy ID                                                  |
+| --------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| Asteria   | `addr1w824uvev63kj40lzfhaq2kxzmmwsz9xsqsjr2t4cq74vzdcdw8c77` | `d55e332cd46d2abfe24dfa0558c2dedd0114d00424352eb807aac137` |
+| Pellet    | `addr1wya6hnluvypwcfww6s8p5f8m5gphryjugmcznxetj3trvrsc307jj` | `3babcffc6102ec25ced40e1a24fba20371925c46f0299b2b9456360e` |
+| Spacetime | `addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx` | `0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43` |
+| Admin     |                                                              | `db0d968cda2cc636b28c0f377e66691a065b8004e57be5129aeef822` |
