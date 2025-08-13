@@ -67,7 +67,7 @@ tx create_ship(
     last_move_timestamp: Int,
 ) {
     locals {
-        initial_fuel: 480, // Should be taken from spaceTime datum
+        initial_fuel: 5, // Should be taken from spaceTime datum
         ship_mint_lovelace_fee: 1000000, // Should be taken from asteria script datum
         spacetime_policy_hash: 0x0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43,
         spacetime_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#1,
