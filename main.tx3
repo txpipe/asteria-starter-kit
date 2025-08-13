@@ -177,7 +177,8 @@ tx move_ship(
     }
 
     validity {
-        until_slot: tip_slot, // tip_slot() + 300
+        since_slot: tip_slot - 100,
+        until_slot: tip_slot + 240, // tip_slot() + 300
     }
 
     reference SpacetimeRef {
