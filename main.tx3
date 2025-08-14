@@ -107,9 +107,9 @@ tx create_ship(
         ref: pellet_policy_ref,
     }
 
-    input source {
+    input* gas {
         from: Player,
-        min_amount: fees + Ada(ship_mint_lovelace_fee) + min_utxo(ship),
+        min_amount: fees + Ada(ship_mint_lovelace_fee) + min_utxo(pilot_token) + min_utxo(new_ship),
     }
 
     input asteria {
@@ -129,12 +129,12 @@ tx create_ship(
         redeemer: FuelRedeemer::MintFuel {},
     }
 
-    output {
+    output pilot_token {
         to: Player,
-        amount: source - fees - Ada(ship_mint_lovelace_fee) + AnyAsset(spacetime_policy_hash, pilot_name, 1) - min_utxo(ship),
+        amount: AnyAsset(spacetime_policy_hash, pilot_name, 1) + min_utxo(pilot_token),
     }
 
-    output {
+    output updated_asteria {
         to: AsteriaPolicy,
         amount: asteria + Ada(ship_mint_lovelace_fee),
         datum: AsteriaDatum {
@@ -143,9 +143,9 @@ tx create_ship(
         },
     }
 
-    output ship {
+    output new_ship {
         to: SpacetimePolicy,
-        amount: AnyAsset(spacetime_policy_hash, ship_name, 1) + Fuel(initial_fuel) + min_utxo(ship),
+        amount: AnyAsset(spacetime_policy_hash, ship_name, 1) + Fuel(initial_fuel) + min_utxo(new_ship),
         datum: ShipDatum {
             pos_x: p_pos_x,
             pos_y: p_pos_y,
@@ -153,6 +153,11 @@ tx create_ship(
             pilot_token_name: pilot_name,
             last_move_latest_time: last_move_timestamp,
         },
+    }
+
+    output gas_change {
+        to: Player,
+        amount: gas - fees - Ada(ship_mint_lovelace_fee) - min_utxo(pilot_token) - min_utxo(new_ship),
     }
 
     collateral {

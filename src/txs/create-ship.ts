@@ -27,11 +27,11 @@ export async function run() {
   });
 
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const positionX = 50; // Replace with your desired start X position
-  const positionY = 50; // Replace with your desired start Y position
-  const shipName = "SHIP22"; // Replace 0 with the next ship number
-  const pilotName = "PILOT22"; // Replace 0 with the next ship number
-  const tipSlot = 163529100; // Replace with the latest block slot
+  const positionX = 25; // Replace with your desired start X position
+  const positionY = -25; // Replace with your desired start Y position
+  const shipName = "SHIP33"; // Replace 0 with the next ship number
+  const pilotName = "PILOT33"; // Replace 0 with the next ship number
+  const tipSlot = 163614877; // Replace with the latest block slot
   const lastMoveTimestamp = Date.now() + 300_000;
 
   console.log("-- PARAMS");
