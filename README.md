@@ -164,15 +164,15 @@ In order to get the information about the items on the map you can query the Ast
 
 ```graphql
 query {
-	objectsInRadius(
-		center: { x: 0, y: 0 },
-		radius: 1000,
-		spacetimePolicyId: "0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43",
-		spacetimeAddress: "addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx",
-		pelletPolicyId: "3babcffc6102ec25ced40e1a24fba20371925c46f0299b2b9456360e4655454c",
-		pelletAddress: "addr1wya6hnluvypwcfww6s8p5f8m5gphryjugmcznxetj3trvrsc307jj",
-		asteriaAddress: "addr1w824uvev63kj40lzfhaq2kxzmmwsz9xsqsjr2t4cq74vzdcdw8c77",
-		tokens: [
+  objectsInRadius(
+    center: { x: 0, y: 0 },
+    radius: 1000,
+    spacetimePolicyId: "0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43",
+    spacetimeAddress: "addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx",
+    pelletPolicyId: "3babcffc6102ec25ced40e1a24fba20371925c46f0299b2b9456360e4655454c",
+    pelletAddress: "addr1wya6hnluvypwcfww6s8p5f8m5gphryjugmcznxetj3trvrsc307jj",
+    asteriaAddress: "addr1w824uvev63kj40lzfhaq2kxzmmwsz9xsqsjr2t4cq74vzdcdw8c77",
+    tokens: [
       { name: "iagon", displayName: "IAGON", assetName: "$IAG", policyId: "5d16cc1a177b5d9ba9cfa9793b07e60f1fb70fea1f8aef064415d114494147", decimals: 6 },
       { name: "sundae", displayName: "SundaeSwap", assetName: "$SUNDAE", policyId: "9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d7753554e444145", decimals: 6 },
       { name: "hosky", displayName: "Hosky", assetName: "$HOSKY", policyId: "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235484f534b59", decimals: 6 },
@@ -188,14 +188,14 @@ query {
       { name: "about-stuff", displayName: "About Stuff E0 | #9361", assetName: "NFT", policyId: "b4df23876be7207fe26e0cddfb08d6a73ff83754075efafb5344623441533039333631" },
       { name: "gutenberg-bible", displayName: "Gutenberg Bible #2603", assetName: "NFT", policyId: "477cec772adb1466b301fb8161f505aa66ed1ee8d69d3e7984256a43477574656e62657267204269626c65202332363033" }
     ],
-	) {
-		__typename
-		position { x y }
-		... on Ship { id fuel shipTokenName { name } pilotTokenName { name } }
-		... on Pellet { id fuel }
-		... on Token { id displayName assetName amount }
-		... on Asteria { id totalRewards }
-	}
+  ) {
+    __typename
+    position { x y }
+    ... on Ship { id fuel shipTokenName { name } pilotTokenName { name } }
+    ... on Pellet { id fuel }
+    ... on Token { id displayName assetName amount }
+    ... on Asteria { id totalRewards }
+  }
 }
 ```
 
