@@ -109,7 +109,7 @@ tx create_ship(
 
     input* gas {
         from: Player,
-        min_amount: fees + Ada(ship_mint_lovelace_fee) + min_utxo(pilot_token) + min_utxo(new_ship),
+        min_amount: fees + Ada(ship_mint_lovelace_fee) + min_utxo(pilot_token) + min_utxo(new_ship) + min_utxo(gas_change),
     }
 
     input asteria {
@@ -172,7 +172,8 @@ tx move_ship(
     ship_name: Bytes,
     pilot_name: Bytes,
     required_fuel: Int,
-    tip_slot: Int, // TODO: remove when tip_slot() implemented
+    since_slot: Int,
+    until_slot: Int,
     last_move_timestamp: Int,
 ) {
     locals {
@@ -182,8 +183,8 @@ tx move_ship(
     }
 
     validity {
-        since_slot: tip_slot - 100,
-        until_slot: tip_slot + 240, // tip_slot() + 300
+        since_slot: since_slot, 
+        until_slot: until_slot,
     }
 
     reference SpacetimeRef {
@@ -209,9 +210,9 @@ tx move_ship(
         },
     }
 
-    input pilot {
+    input* pilot {
         from: Player,
-        min_amount: AnyAsset(spacetime_policy_hash, pilot_name, 1) + fees,
+        min_amount: AnyAsset(spacetime_policy_hash, pilot_name, 1) + fees + min_utxo(pilot_change),
     }
 
     mint {
@@ -230,7 +231,7 @@ tx move_ship(
         },
     }
 
-    output {
+    output pilot_change {
         to: Player,
         amount: pilot - fees,
     }

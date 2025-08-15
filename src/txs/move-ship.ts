@@ -4,7 +4,6 @@ import { Client, MoveShipParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
 export async function run() {
-
   dotenv.config();
 
   if (!process.env.PLAYER_PRIVATE_KEY) {
@@ -25,14 +24,20 @@ export async function run() {
     },
   });
 
+  const slotRequiredPerStep = 12096;
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const deltaX = 1; // Replace with your desired X movement units
-  const deltaY = 1; // Replace with your desired Y movement units
-  const requiredFuel = 2; // Replace with the required fuel for the movement
-  const shipName = "SHIP22"; // Replace with your ship name
-  const pilotName = "PILOT22"; // Replace with your pilot name
-  const tipSlot = 163530194; // Replace with the latest block slot
-  const lastMoveTimestamp = Date.now();
+  const deltaX = -1; // Replace with your desired X movement units
+  const deltaY = 0; // Replace with your desired Y movement units
+  const requiredFuel = 1; // Replace with the required fuel for the movement
+  const shipName = "SHIP33"; // Replace with your ship name
+  const pilotName = "PILOT33"; // Replace with your pilot name
+  const tipSlot = 163716537; // Replace with the latest block slot
+
+  // computed values
+  const distance = Math.abs(deltaX) + Math.abs(deltaY);
+  const sinceSlot = tipSlot - 100; // 100 is just to be safe;
+  const untilSlot = tipSlot + slotRequiredPerStep * distance;
+  const lastMoveTimestamp = Date.now() + slotRequiredPerStep * distance * 1000;
 
   console.log("-- PARAMS");
   console.log({
@@ -42,7 +47,8 @@ export async function run() {
     requiredFuel,
     shipName,
     pilotName,
-    tipSlot,
+    sinceSlot,
+    untilSlot,
     lastMoveTimestamp,
   });
 
@@ -53,14 +59,15 @@ export async function run() {
     requiredFuel: requiredFuel,
     pilotName: new TextEncoder().encode(pilotName),
     shipName: new TextEncoder().encode(shipName),
-    tipSlot: tipSlot + 300, // 5 minutes from last block
+    sinceSlot,
+    untilSlot,
     lastMoveTimestamp,
   };
 
   const response = await client.moveShipTx(args);
 
   console.log("-- RESOLVE");
-  console.log(response);
+  console.dir(response, { depth: null });
 
   const witnesses = signTx(response.hash, process.env.PLAYER_PRIVATE_KEY);
 
@@ -70,14 +77,14 @@ export async function run() {
   const submitParams: SubmitParams = {
     tx: {
       content: response.tx,
-      encoding: 'hex'
+      encoding: "hex",
     } as BytesEnvelope,
-    witnesses
+    witnesses,
   };
-  
+
   console.log("-- SUBMIT");
   console.log(submitParams);
-  
+
   try {
     await client.submit(submitParams);
     console.log("-- DONE");
@@ -89,6 +96,6 @@ export async function run() {
 
 run().catch((error) => {
   console.error("-- ERROR");
-  console.error("Error running transaction:", error);
+  console.dir(error, { depth: null });
   process.exit(1);
 });
