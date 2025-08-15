@@ -59,6 +59,12 @@ cardano-cli address build --payment-verification-key-file pilot.vk --mainnet
 
 Make sure to send some ADA to the address to use as "gas" for executing the required transactions.
 
+### Get your wallet private key
+
+In order to get your wallet private key you can use [cbor.me](https://cbor.me/).
+
+Paste your `cborHex` value from the `pilot.sk` file and you'll get your wallet private key.
+
 ### Provide the required env vars
 
 You need to create a `.env` file with your wallet info:
@@ -144,6 +150,61 @@ Run this in order to create and submit the transaction:
 
 ```bash
 npm run move-ship
+```
+
+### List map items
+
+In order to get the information about the items on the map you can query the Asteria GraphQL API.
+
+#### GraphQL API URL
+
+[`https://8000-ethereal-audience-bb83g6.us1.demeter.run/graphql`](https://8000-ethereal-audience-bb83g6.us1.demeter.run/graphql)
+
+#### GraphQL Query
+
+```graphql
+query {
+	objectsInRadius(
+		center: { x: 0, y: 0 },
+		radius: 1000,
+		spacetimePolicyId: "0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43",
+		spacetimeAddress: "addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx",
+		pelletPolicyId: "3babcffc6102ec25ced40e1a24fba20371925c46f0299b2b9456360e4655454c",
+		pelletAddress: "addr1wya6hnluvypwcfww6s8p5f8m5gphryjugmcznxetj3trvrsc307jj",
+		asteriaAddress: "addr1w824uvev63kj40lzfhaq2kxzmmwsz9xsqsjr2t4cq74vzdcdw8c77",
+		tokens: [
+      { name: "iagon", displayName: "IAGON", assetName: "$IAG", policyId: "5d16cc1a177b5d9ba9cfa9793b07e60f1fb70fea1f8aef064415d114494147", decimals: 6 },
+      { name: "sundae", displayName: "SundaeSwap", assetName: "$SUNDAE", policyId: "9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d7753554e444145", decimals: 6 },
+      { name: "hosky", displayName: "Hosky", assetName: "$HOSKY", policyId: "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235484f534b59", decimals: 6 },
+      { name: "metera", displayName: "Metera", assetName: "$METERA", policyId: "8ebb4f0eb39543cdab83eb35f5f194798817eaaa3061872b4101efdb0014df104d4554455241", decimals: 6 },
+      { name: "indigo", displayName: "Indigo DAO Token", assetName: "$INDY", policyId: "533bb94a8850ee3ccbe483106489399112b74c905342cb1792a797a0494e4459", decimals: 6 },
+      { name: "minswap", displayName: "Minswap", assetName: "$MIN", policyId: "29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e", decimals: 6 },
+      { name: "stuff", displayName: "Stuff", assetName: "$STUFF", policyId: "51a5e236c4de3af2b8020442e2a26f454fda3b04cb621c1294a0ef34424f4f4b", decimals: 6 },
+      { name: "fluid", displayName: "FluidTokens", assetName: "$FLDT", policyId: "577f0b1342f8f8f4aed3388b80a8535812950c7a892495c0ecdf0f1e0014df10464c4454", decimals: 6 },
+      { name: "vyfi", displayName: "VyFinance", assetName: "$VYFI", policyId: "804f5544c1962a40546827cab750a88404dc7108c0f588b72964754f56594649", decimals: 6 },
+      { name: "white-trash-warlock", displayName: "White Trash Warlock #388", assetName: "NFT", policyId: "c5ec84e79e58cd5d7203d38738848991ddce76efad59ef701b6f4cf4576869746554726173685761726c6f636b333838" },
+      { name: "silver", displayName: "SILVER #1119", assetName: "NFT", policyId: "a0bf068fda05eda2d7cd00e51cdc599059449294101e7211a12195f953494c56455231313139" },
+      { name: "collecting-the-simpsons", displayName: "Collecting the Simpsons #074", assetName: "NFT", policyId: "11fb60cbc42fc2012327d82309fe0c5cb39e5b2e83a83a9272d2faad436f6c6c656374696e6753696d70736f6e73303734" },
+      { name: "about-stuff", displayName: "About Stuff E0 | #9361", assetName: "NFT", policyId: "b4df23876be7207fe26e0cddfb08d6a73ff83754075efafb5344623441533039333631" },
+      { name: "gutenberg-bible", displayName: "Gutenberg Bible #2603", assetName: "NFT", policyId: "477cec772adb1466b301fb8161f505aa66ed1ee8d69d3e7984256a43477574656e62657267204269626c65202332363033" }
+    ],
+	) {
+		__typename
+		position { x y }
+		... on Ship { id fuel shipTokenName { name } pilotTokenName { name } }
+		... on Pellet { id fuel }
+		... on Token { id displayName assetName amount }
+		... on Asteria { id totalRewards }
+	}
+}
+```
+
+#### GraphQL Query cURL
+
+```bash
+curl --location 'https://8000-ethereal-audience-bb83g6.us1.demeter.run/graphql' \
+--header 'Content-Type: application/json' \
+--data '{"query":"query {\n\tobjectsInRadius(center: { x: 0, y: 0 }, radius: 1000, spacetimePolicyId: \"0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43\", spacetimeAddress: \"addr1wypfrtn6awhsvjmc24pqj0ptzvtfalang33rq8ng6j6y7scnlkytx\", pelletPolicyId: \"3babcffc6102ec25ced40e1a24fba20371925c46f0299b2b9456360e4655454c\", pelletAddress: \"addr1wya6hnluvypwcfww6s8p5f8m5gphryjugmcznxetj3trvrsc307jj\", asteriaAddress: \"addr1w824uvev63kj40lzfhaq2kxzmmwsz9xsqsjr2t4cq74vzdcdw8c77\", tokens: [{name: \"iagon\", displayName: \"IAGON\", assetName: \"$IAG\", policyId: \"5d16cc1a177b5d9ba9cfa9793b07e60f1fb70fea1f8aef064415d114494147\", decimals: 6},{name: \"sundae\", displayName: \"SundaeSwap\", assetName: \"$SUNDAE\", policyId: \"9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d7753554e444145\", decimals: 6},{name: \"hosky\", displayName: \"Hosky\", assetName: \"$HOSKY\", policyId: \"a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235484f534b59\", decimals: 6},{name: \"metera\", displayName: \"Metera\", assetName: \"$METERA\", policyId: \"8ebb4f0eb39543cdab83eb35f5f194798817eaaa3061872b4101efdb0014df104d4554455241\", decimals: 6},{name: \"indigo\", displayName: \"Indigo DAO Token\", assetName: \"$INDY\", policyId: \"533bb94a8850ee3ccbe483106489399112b74c905342cb1792a797a0494e4459\", decimals: 6},{name: \"minswap\", displayName: \"Minswap\", assetName: \"$MIN\", policyId: \"29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e\", decimals: 6},{name: \"stuff\", displayName: \"Stuff\", assetName: \"$STUFF\", policyId: \"51a5e236c4de3af2b8020442e2a26f454fda3b04cb621c1294a0ef34424f4f4b\", decimals: 6},{name: \"fluid\", displayName: \"FluidTokens\", assetName: \"$FLDT\", policyId: \"577f0b1342f8f8f4aed3388b80a8535812950c7a892495c0ecdf0f1e0014df10464c4454\", decimals: 6},{name: \"vyfi\", displayName: \"VyFinance\", assetName: \"$VYFI\", policyId: \"804f5544c1962a40546827cab750a88404dc7108c0f588b72964754f56594649\", decimals: 6},{name: \"white-trash-warlock\", displayName: \"White Trash Warlock #388\", assetName: \"NFT\", policyId: \"c5ec84e79e58cd5d7203d38738848991ddce76efad59ef701b6f4cf4576869746554726173685761726c6f636b333838\"},{name: \"silver\", displayName: \"SILVER #1119\", assetName: \"NFT\", policyId: \"a0bf068fda05eda2d7cd00e51cdc599059449294101e7211a12195f953494c56455231313139\"},{name: \"collecting-the-simpsons\", displayName: \"Collecting the Simpsons #074\", assetName: \"NFT\", policyId: \"11fb60cbc42fc2012327d82309fe0c5cb39e5b2e83a83a9272d2faad436f6c6c656374696e6753696d70736f6e73303734\"},{name: \"about-stuff\", displayName: \"About Stuff E0 | #9361\", assetName: \"NFT\", policyId: \"b4df23876be7207fe26e0cddfb08d6a73ff83754075efafb5344623441533039333631\"},{name: \"gutenberg-bible\", displayName: \"Gutenberg Bible #2603\", assetName: \"NFT\", policyId: \"477cec772adb1466b301fb8161f505aa66ed1ee8d69d3e7984256a43477574656e62657267204269626c65202332363033\"}])\n  { __typename position { x y } ... on Ship { id fuel shipTokenName { name } pilotTokenName { name } } ... on Pellet { id fuel } ... on Token { id displayName assetName amount } ... on Asteria { id totalRewards } }\n}","variables":{}}'
 ```
 
 ## Mainnet Challenge
