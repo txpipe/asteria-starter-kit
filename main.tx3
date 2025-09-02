@@ -19,16 +19,6 @@ policy PelletPolicy {
 asset Fuel = 0x3babcffc6102ec25ced40e1a24fba20371925c46f0299b2b9456360e."FUEL";
 asset AdminToken = 0xdb0d968cda2cc636b28c0f377e66691a065b8004e57be5129aeef822."auth";
 
-type AssetRecord {
-    policy_id: Bytes,
-    asset_name: Bytes,
-}
-
-type MaxSpeedRecord {
-    distance: Int,
-    time: Int,
-}
-
 type ShipDatum {
     pos_x: Int,
     pos_y: Int,
@@ -48,14 +38,16 @@ type PelletDatum {
     shipyard_policy: Bytes,
 }
 
-type ShipActions {
+type ShipRedeemer {
     MoveShip {
         delta_x: Int,
         delta_y: Int,
     },
     GatherFuel {
-        gather_amount: Int,
+        amount: Int,
     },
+    MineAsteria,
+    Quit,
 }
 
 type AsteriaRedeemer {
@@ -64,11 +56,18 @@ type AsteriaRedeemer {
   ConsumeAsteria,
 }
 
+type PelletRedeemer {
+  Provide {
+    amount: Int,
+  },
+  ConsumePellet,
+}
 
 type ShipyardRedeemer {
   MintShip,
   BurnShip,
 }
+
 type FuelRedeemer {
   MintFuel,
   BurnFuel,
@@ -204,7 +203,7 @@ tx move_ship(
         from: SpacetimePolicy,
         datum_is: ShipDatum,
         min_amount: AnyAsset(spacetime_policy_hash, ship_name, 1),
-        redeemer: ShipActions::MoveShip { 
+        redeemer: ShipRedeemer::MoveShip { 
             delta_x: p_delta_x,
             delta_y: p_delta_y,
         },
@@ -238,19 +237,21 @@ tx move_ship(
 
 }
 
-tx gather_fuel (
-    p_gather_amount: Int,
+tx gather_fuel(
+    p_amount: Int,
     ship_name: Bytes,
-    tip_slot: Int, // TODO: remove when tip_slot() implemented
+    pilot_name: Bytes,
+    since_slot: Int,
+    pellet_ref: UtxoRef,
 ) {
     locals {
         spacetime_policy_hash: 0x0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43,
         spacetime_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#1,
         pellet_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#2,
     }
-    
+
     validity {
-        since_slot: tip_slot, // tip_slot() + 300
+        since_slot: since_slot,
     }
 
     reference SpacetimeRef {
@@ -261,47 +262,47 @@ tx gather_fuel (
         ref: pellet_policy_ref,
     }
 
-    input source {
-        from: Player,
-        min_amount: fees,
+    input pellet {
+        ref: pellet_ref,
+        redeemer: PelletRedeemer::Provide { 
+            amount: p_amount,
+        },
     }
 
     input ship {
         from: SpacetimePolicy,
         datum_is: ShipDatum,
         min_amount: AnyAsset(spacetime_policy_hash, ship_name, 1),
-        redeemer: ShipActions::GatherFuel { 
-            gather_amount: p_gather_amount,
+        redeemer: ShipRedeemer::GatherFuel { 
+            amount: p_amount,
         },
     }
 
-    input pellet {
-        from: PelletPolicy,
-        datum_is: PelletDatum,
-        min_amount: Fuel(p_gather_amount),
-        redeemer: ShipActions::GatherFuel { 
-            gather_amount: p_gather_amount,
-        },
-    }
-
-    output {
-        to: Player,
-        amount: source - fees,
-    }
-
-    output {
-        to: SpacetimePolicy,
-        amount: ship + Fuel(p_gather_amount),
-        datum: ShipDatum {...ship},
+    input* pilot {
+        from: Player,
+        min_amount: AnyAsset(spacetime_policy_hash, pilot_name, 1) + fees + min_utxo(pilot_change),
     }
 
     output {
         to: PelletPolicy,
-        amount: pellet - Fuel(p_gather_amount),
-        datum: PelletDatum {
-            pos_x: pellet.pos_x,
-            pos_y: pellet.pos_y,
-            shipyard_policy: spacetime_policy_hash,
-        },
+        amount: pellet - Fuel(p_amount),
+        datum: PelletDatum {...pellet},
     }
+
+    output {
+        to: SpacetimePolicy,
+        amount: ship + Fuel(p_amount),
+        datum: ShipDatum {...ship},
+    }
+
+    output pilot_change {
+        to: Player,
+        amount: pilot - fees,
+    }
+
+    collateral {
+        from: Player,
+        min_amount: fees,
+    }
+
 }

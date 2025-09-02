@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
-import { Client, MoveShipParams } from "../bindings/protocol";
+import { Client, GatherFuelParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
 export async function run() {
@@ -24,47 +24,35 @@ export async function run() {
     },
   });
 
-  const slotRequiredPerStep = 12096;
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const deltaX = 0; // Replace with your desired X movement units
-  const deltaY = 5; // Replace with your desired Y movement units
-  const requiredFuel = 5; // Replace with the required fuel for the movement
-  const shipName = "SHIP61"; // Replace with your ship name
-  const pilotName = "PILOT61"; // Replace with your pilot name
+  const fuelAmount = 4; // Replace with the desired fuel to gather
+  const shipName = "SHIP60"; // Replace with your ship name
+  const pilotName = "PILOT60"; // Replace with your pilot name
+  const pelletRef = "2853b765da3e75237f1d6d70c0db3315d67afcc3c20812775ccf74246b383b6b#8";
   const tipSlot = 165246300; // Replace with the latest block slot
 
-  // computed values
-  const distance = Math.abs(deltaX) + Math.abs(deltaY);
-  const sinceSlot = tipSlot - 100; // 100 is just to be safe;
-  const untilSlot = tipSlot + slotRequiredPerStep * distance;
-  const lastMoveTimestamp = Date.now() + slotRequiredPerStep * distance * 1000;
+  const sinceSlot = tipSlot - 100; // 100 is just to be safe
 
   console.log("-- PARAMS");
   console.log({
     playerAddress,
-    deltaX,
-    deltaY,
-    requiredFuel,
+    fuelAmount,
     shipName,
     pilotName,
+    pelletRef,
     sinceSlot,
-    untilSlot,
-    lastMoveTimestamp,
   });
 
-  const args: MoveShipParams = {
+  const args: GatherFuelParams = {
     player: playerAddress,
-    pDeltaX: deltaX,
-    pDeltaY: deltaY,
-    requiredFuel: requiredFuel,
+    pAmount: fuelAmount,
     pilotName: new TextEncoder().encode(pilotName),
     shipName: new TextEncoder().encode(shipName),
+    pelletRef,
     sinceSlot,
-    untilSlot,
-    lastMoveTimestamp,
   };
 
-  const response = await client.moveShipTx(args);
+  const response = await client.gatherFuelTx(args);
 
   console.log("-- RESOLVE");
   console.dir(response, { depth: null });

@@ -27,11 +27,11 @@ export async function run() {
   });
 
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const positionX = 25; // Replace with your desired start X position
-  const positionY = -25; // Replace with your desired start Y position
-  const shipName = "SHIP33"; // Replace 0 with the next ship number
-  const pilotName = "PILOT33"; // Replace 0 with the next ship number
-  const tipSlot = 163614877; // Replace with the latest block slot
+  const positionX = 4; // Replace with your desired start X position
+  const positionY = -50; // Replace with your desired start Y position
+  const shipName = "SHIP61"; // Replace 0 with the next ship number
+  const pilotName = "PILOT61"; // Replace 0 with the next ship number
+  const tipSlot = 165246231; // Replace with the latest block slot
   const lastMoveTimestamp = Date.now() + 300_000;
 
   console.log("-- PARAMS");
@@ -76,8 +76,9 @@ export async function run() {
   console.log(submitParams);
 
   try {
-    await client.submit(submitParams);
+    const response = await client.submit(submitParams);
     console.log("-- DONE");
+    console.log(response);
   } catch (error) {
     console.error("-- SUBMIT ERROR");
     console.error("Failed to submit transaction:", error);
@@ -86,6 +87,6 @@ export async function run() {
 
 run().catch((error) => {
   console.error("-- ERROR");
-  console.error("Error running transaction:", error);
+  console.dir(error, { depth: null });
   process.exit(1);
 });
