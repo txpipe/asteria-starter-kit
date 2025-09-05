@@ -152,6 +152,131 @@ Run this in order to create and submit the transaction:
 npm run move-ship
 ```
 
+### Gather Fuel Tx
+
+With this transaction you can gather fuel from the fuel pellets for your ship.
+
+Updates the amount of fuel tokens in both `ShipState` and `PelletState` UTxOs, adding the `amount` (specified in the redeemer) from the first and subtracting it from the latter. Also allows the ship owner to get any amount of the prize tokens held in the pellet.
+
+![gatherFuel](https://github.com/txpipe/asteria/blob/main/onchain/docs/design/img/gatherFuel.png)
+
+You need to replace the params with the required values in `src/txs/gather-fuel.ts`:
+
+```ts
+const fuelAmount = 5; // Replace with the desired fuel to gather
+const shipName = "SHIP0"; // Replace with your ship name
+const pilotName = "PILOT0"; // Replace with your pilot name
+const pelletRef = "acbb34e95c67bc4432557088138dbcc00d957756ebac6480e2499d1088b0b7be#13"; // Pellet UTxO reference
+const tipSlot = 0; // Replace with the latest block slot
+```
+
+Rules to take into account:
+
+- the ship number has to be the one controlled by the pilot token in your wallet.
+- the ship has to be in the same position than the pellet
+- the ship can't have more than 5 fuel units
+
+
+Run this in order to create and submit the transaction:
+
+```bash
+npm run gather-fuel
+```
+
+### Gather Token Tx
+
+With this transaction you can gather fuel from the fuel pellets for your ship and retrieve tokens from the pellet.
+
+Updates the amount of fuel tokens in both `ShipState` and `PelletState` UTxOs, adding the `amount` (specified in the redeemer) from the first and subtracting it from the latter. Also allows the ship owner to get any amount of the prize tokens held in the pellet.
+
+![gatherFuel](https://github.com/txpipe/asteria/blob/main/onchain/docs/design/img/gatherFuel.png)
+
+You need to replace the params with the required values in `src/txs/gather-token.ts`:
+
+```ts
+const fuelAmount = 5; // Replace with the desired fuel to gather
+const shipName = "SHIP0"; // Replace with your ship name
+const pilotName = "PILOT0"; // Replace with your pilot name
+const pelletRef = "acbb34e95c67bc4432557088138dbcc00d957756ebac6480e2499d1088b0b7be#13"; // Pellet UTxO reference
+
+const tokenAmount = 1; // Token amount to gather
+const tokenName = "AS09361"; // Token name
+const tokenPolicyHash = Uint8Array.from(Buffer.from("b4df23876be7207fe26e0cddfb08d6a73ff83754075efafb53446234", "hex")); // Token policy hash
+
+const tipSlot = 0; // Replace with the latest block slot
+```
+
+Rules to take into account:
+
+- the ship number has to be the one controlled by the pilot token in your wallet.
+- the ship has to be in the same position than the pellet
+- the ship can't have more than 5 fuel units
+
+
+Run this in order to create and submit the transaction:
+
+```bash
+npm run gather-token
+```
+
+### Mine Asteria Tx
+
+With this transaction you can retrieve the asteria prize.
+
+Subtracts from the `AsteriaUTxO` at most `MAX_ASTERIA_MINING`% of the ada value, and pays that amount to the owner of the ship that reached Asteria, together with the min ada locked in the `ShipState` UTxO. The `ShipToken` and the remaining fuel tokens are burnt.
+
+![mineAsteria](https://github.com/txpipe/asteria/blob/main/onchain/docs/design/img/mineAsteria.png)
+
+You need to replace the params with the required values in `src/txs/mine-asteria.ts`:
+
+```ts
+const shipName = "SHIP0"; // Replace with your ship name
+const pilotName = "PILOT0"; // Replace with your pilot name
+const shipFuel = 5; // Replace with the ship fuel
+const mineAmount = 1_000_000; // Replace with the mine amount -- it should be 50% of asteria ada
+const tipSlot = 0; // Replace with the latest block slot
+```
+
+Rules to take into account:
+
+- the ship number has to be the one controlled by the pilot token in your wallet.
+- the ship has to be in the position (0,0)
+
+
+Run this in order to create and submit the transaction:
+
+```bash
+npm run mine-asteria
+```
+
+### Quit Game Tx
+
+With this transaction you can remove your ship from the game.
+
+Pays the min ada locked in the `ShipState` UTxO back to the ship owner. Also burns the `ShipToken` and the remaining fuel tokens.
+
+![quit](https://github.com/txpipe/asteria/blob/main/onchain/docs/design/img/quit.png)
+
+You need to replace the params with the required values in `src/txs/quit-game.ts`:
+
+```ts
+const shipName = "SHIP0"; // Replace with your ship name
+const pilotName = "PILOT0"; // Replace with your pilot name
+const shipFuel = 5; // Replace with the ship fuel
+const tipSlot = 0; // Replace with the latest block slot
+```
+
+Rules to take into account:
+
+- the ship number has to be the one controlled by the pilot token in your wallet.
+
+
+Run this in order to create and submit the transaction:
+
+```bash
+npm run quit-game
+```
+
 ### List map items
 
 In order to get the information about the items on the map you can query the Asteria GraphQL API.

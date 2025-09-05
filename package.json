@@ -5,15 +5,21 @@
   "scripts": {
     "build": "tsc",
     "create-ship": "ts-node src/txs/create-ship.ts",
-    "move-ship": "ts-node src/txs/move-ship.ts"
+    "move-ship": "ts-node src/txs/move-ship.ts",
+    "gather-fuel": "ts-node src/txs/gather-fuel.ts",
+    "gather-token": "ts-node src/txs/gather-token.ts",
+    "mine-asteria": "ts-node src/txs/mine-asteria.ts",
+    "quit-game": "ts-node src/txs/quit-game.ts"
   },
   "dependencies": {
     "@noble/curves": "^1.9.6",
     "dotenv": "^17.2.1",
-    "tx3-sdk": "^0.6.0"
+    "tx3-sdk": "file:../tx3/web-sdk/packages/tx3-sdk",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
+    "@types/ws": "^8.18.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

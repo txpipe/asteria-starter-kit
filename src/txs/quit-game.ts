@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
-import { Client, GatherFuelParams } from "../bindings/protocol";
+import { Client, QuitGameParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
 export async function run() {
@@ -24,36 +24,33 @@ export async function run() {
     },
   });
 
-  const fuelAmount = 4; // Replace with the desired fuel to gather
-  const shipName = "SHIP61"; // Replace with your ship name
-  const pilotName = "PILOT61"; // Replace with your pilot name
-  const pelletRef = "acbb34e95c67bc4432557088138dbcc00d957756ebac6480e2499d1088b0b7be#13"; // Pellet UTxO reference
+  const shipName = "SHIP60"; // Replace with your ship name
+  const pilotName = "PILOT60"; // Replace with your pilot name
+  const shipFuel = 3; // Replace with the ship fuel
 
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const tipSlot = 165453127; // Replace with the latest block slot
+  const tipSlot = 165470021; // Replace with the latest block slot
 
   const sinceSlot = tipSlot - 100; // 100 is just to be safe
 
   console.log("-- PARAMS");
   console.log({
     playerAddress,
-    fuelAmount,
-    shipName,
     pilotName,
-    pelletRef,
+    shipName,
+    shipFuel,
     sinceSlot,
   });
 
-  const args: GatherFuelParams = {
+  const args: QuitGameParams = {
     player: playerAddress,
-    pAmount: fuelAmount,
     pilotName: new TextEncoder().encode(pilotName),
     shipName: new TextEncoder().encode(shipName),
-    pelletRef,
+    shipFuel,
     sinceSlot,
   };
 
-  const response = await client.gatherFuelTx(args);
+  const response = await client.quitGameTx(args);
 
   console.log("-- RESOLVE");
   console.dir(response, { depth: null });

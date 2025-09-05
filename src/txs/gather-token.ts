@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { SubmitParams, BytesEnvelope } from "tx3-sdk/trp";
-import { Client, GatherFuelParams } from "../bindings/protocol";
+import { Client, GatherTokenParams } from "../bindings/protocol";
 import signTx from "../utils/sign-tx";
 
 export async function run() {
@@ -24,36 +24,46 @@ export async function run() {
     },
   });
 
-  const fuelAmount = 4; // Replace with the desired fuel to gather
-  const shipName = "SHIP61"; // Replace with your ship name
-  const pilotName = "PILOT61"; // Replace with your pilot name
-  const pelletRef = "acbb34e95c67bc4432557088138dbcc00d957756ebac6480e2499d1088b0b7be#13"; // Pellet UTxO reference
+  const fuelAmount = 3; // Replace with the desired fuel to gather
+  const shipName = "SHIP60"; // Replace with your ship name
+  const pilotName = "PILOT60"; // Replace with your pilot name
+  const pelletRef = "2853b765da3e75237f1d6d70c0db3315d67afcc3c20812775ccf74246b383b6b#62"; // Pellet UTxO reference
+
+  const tokenAmount = 1; // Token amount to gather
+  const tokenName = "AS09361"; // Token name
+  const tokenPolicyHash = Uint8Array.from(Buffer.from("b4df23876be7207fe26e0cddfb08d6a73ff83754075efafb53446234", "hex")); // Token policy hash
 
   const playerAddress = process.env.PLAYER_ADDRESS;
-  const tipSlot = 165453127; // Replace with the latest block slot
+  const tipSlot = 165470021; // Replace with the latest block slot
 
   const sinceSlot = tipSlot - 100; // 100 is just to be safe
 
   console.log("-- PARAMS");
   console.log({
     playerAddress,
-    fuelAmount,
-    shipName,
     pilotName,
+    shipName,
     pelletRef,
+    fuelAmount,
+    tokenAmount,
+    tokenName,
+    tokenPolicyHash,
     sinceSlot,
   });
 
-  const args: GatherFuelParams = {
+  const args: GatherTokenParams = {
     player: playerAddress,
-    pAmount: fuelAmount,
     pilotName: new TextEncoder().encode(pilotName),
     shipName: new TextEncoder().encode(shipName),
     pelletRef,
+    fuelAmount: fuelAmount,
+    tokenAmount,
+    tokenName: new TextEncoder().encode(tokenName),
+    tokenPolicyHash,
     sinceSlot,
   };
 
-  const response = await client.gatherFuelTx(args);
+  const response = await client.gatherTokenTx(args);
 
   console.log("-- RESOLVE");
   console.dir(response, { depth: null });

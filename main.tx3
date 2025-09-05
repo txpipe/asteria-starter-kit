@@ -241,8 +241,8 @@ tx gather_fuel(
     p_amount: Int,
     ship_name: Bytes,
     pilot_name: Bytes,
-    since_slot: Int,
     pellet_ref: UtxoRef,
+    since_slot: Int,
 ) {
     locals {
         spacetime_policy_hash: 0x0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43,
@@ -292,6 +292,226 @@ tx gather_fuel(
     output {
         to: SpacetimePolicy,
         amount: ship + Fuel(p_amount),
+        datum: ShipDatum {...ship},
+    }
+
+    output pilot_change {
+        to: Player,
+        amount: pilot - fees,
+    }
+
+    collateral {
+        from: Player,
+        min_amount: fees,
+    }
+
+}
+
+tx gather_token(
+    ship_name: Bytes,
+    pilot_name: Bytes,
+    pellet_ref: UtxoRef,
+    fuel_amount: Int,
+    token_name: Bytes,
+    token_amount: Int,
+    token_policy_hash: Bytes,
+    since_slot: Int,
+) {
+    locals {
+        spacetime_policy_hash: 0x0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43,
+        spacetime_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#1,
+        pellet_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#2,
+    }
+
+    validity {
+        since_slot: since_slot,
+    }
+
+    reference SpacetimeRef {
+        ref: spacetime_policy_ref,
+    }
+
+    reference PelletRef {
+        ref: pellet_policy_ref,
+    }
+
+    input pellet {
+        ref: pellet_ref,
+        redeemer: PelletRedeemer::Provide { 
+            amount: fuel_amount,
+        },
+    }
+
+    input ship {
+        from: SpacetimePolicy,
+        datum_is: ShipDatum,
+        min_amount: AnyAsset(spacetime_policy_hash, ship_name, 1),
+        redeemer: ShipRedeemer::GatherFuel { 
+            amount: fuel_amount,
+        },
+    }
+
+    input* pilot {
+        from: Player,
+        min_amount: AnyAsset(spacetime_policy_hash, pilot_name, 1) + fees + min_utxo(pilot_change),
+    }
+
+    output {
+        to: PelletPolicy,
+        amount: pellet - Fuel(fuel_amount) - AnyAsset(token_policy_hash, token_name, token_amount),
+        datum: PelletDatum {...pellet},
+    }
+
+    output {
+        to: SpacetimePolicy,
+        amount: ship + Fuel(fuel_amount),
+        datum: ShipDatum {...ship},
+    }
+
+    output pilot_change {
+        to: Player,
+        amount: pilot - fees + AnyAsset(token_policy_hash, token_name, token_amount),
+    }
+
+    collateral {
+        from: Player,
+        min_amount: fees,
+    }
+
+}
+
+tx mine_asteria(
+    ship_name: Bytes,
+    pilot_name: Bytes,
+    ship_fuel: Int,
+    mine_amount: Int,
+    since_slot: Int,
+) {
+    locals {
+        spacetime_policy_hash: 0x0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43,
+        spacetime_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#1,
+        asteria_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#0,
+        pellet_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#2,
+    }
+
+    validity {
+        since_slot: since_slot,
+    }
+
+    reference SpacetimeRef {
+        ref: spacetime_policy_ref,
+    }
+
+    reference AsteriaRef {
+        ref: asteria_policy_ref,
+    }
+
+    reference PelletRef {
+        ref: pellet_policy_ref,
+    }
+
+    input asteria {
+        from: AsteriaPolicy,
+        min_amount: AdminToken(1),
+        datum_is: AsteriaDatum,
+        redeemer: AsteriaRedeemer::Mine {},
+    }
+
+    input ship {
+        from: SpacetimePolicy,
+        datum_is: ShipDatum,
+        min_amount: AnyAsset(spacetime_policy_hash, ship_name, 1),
+        redeemer: ShipRedeemer::MineAsteria {},
+    }
+
+    input* pilot {
+        from: Player,
+        min_amount: AnyAsset(spacetime_policy_hash, pilot_name, 1) + fees + min_utxo(pilot_change),
+    }
+
+    mint {
+        amount: Fuel(ship_fuel) - Fuel(ship_fuel) - Fuel(ship_fuel),
+        redeemer: FuelRedeemer::BurnFuel {},
+    }
+
+    mint {
+        amount: AnyAsset(spacetime_policy_hash, ship_name, 1) - AnyAsset(spacetime_policy_hash, ship_name, 1) - AnyAsset(spacetime_policy_hash, ship_name, 1),
+        redeemer: ShipyardRedeemer::BurnShip {},
+    }
+
+    output {
+        to: AsteriaPolicy,
+        amount: asteria - Ada(mine_amount),
+        datum: AsteriaDatum {...asteria},
+    }
+
+    output {
+        to: SpacetimePolicy,
+        amount: ship - AnyAsset(spacetime_policy_hash, ship_name, 1) - Fuel(ship_fuel),
+        datum: ShipDatum {...ship},
+    }
+
+    output pilot_change {
+        to: Player,
+        amount: pilot - fees + Ada(mine_amount),
+    }
+
+    collateral {
+        from: Player,
+        min_amount: fees,
+    }
+
+}
+
+tx quit_game(
+    ship_name: Bytes,
+    pilot_name: Bytes,
+    ship_fuel: Int,
+    since_slot: Int,
+) {
+    locals {
+        spacetime_policy_hash: 0x0291ae7aebaf064b785542093c2b13169effb34462301e68d4b44f43,
+        spacetime_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#1,
+        pellet_policy_ref: 0x3d308c0f3deb1eff764cbb765452c53d30704748681d7acd61c7775aeb8a8e46#2,
+    }
+
+    validity {
+        since_slot: since_slot,
+    }
+
+    reference SpacetimeRef {
+        ref: spacetime_policy_ref,
+    }
+
+    reference PelletRef {
+        ref: pellet_policy_ref,
+    }
+
+    input ship {
+        from: SpacetimePolicy,
+        datum_is: ShipDatum,
+        min_amount: AnyAsset(spacetime_policy_hash, ship_name, 1),
+        redeemer: ShipRedeemer::Quit {},
+    }
+
+    input* pilot {
+        from: Player,
+        min_amount: AnyAsset(spacetime_policy_hash, pilot_name, 1) + fees + min_utxo(pilot_change),
+    }
+
+    mint {
+        amount: Fuel(ship_fuel) - Fuel(ship_fuel) - Fuel(ship_fuel),
+        redeemer: FuelRedeemer::BurnFuel {},
+    }
+
+    mint {
+        amount: AnyAsset(spacetime_policy_hash, ship_name, 1) - AnyAsset(spacetime_policy_hash, ship_name, 1) - AnyAsset(spacetime_policy_hash, ship_name, 1),
+        redeemer: ShipyardRedeemer::BurnShip {},
+    }
+
+    output {
+        to: SpacetimePolicy,
+        amount: ship - AnyAsset(spacetime_policy_hash, ship_name, 1) - Fuel(ship_fuel),
         datum: ShipDatum {...ship},
     }
 
