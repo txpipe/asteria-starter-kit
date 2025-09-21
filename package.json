@@ -14,8 +14,7 @@
   "dependencies": {
     "@noble/curves": "^1.9.6",
     "dotenv": "^17.2.1",
-    "tx3-sdk": "file:../tx3/web-sdk/packages/tx3-sdk",
-    "ws": "^8.18.3"
+    "tx3-sdk": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
